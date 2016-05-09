@@ -36,6 +36,7 @@ class attendance_webservices_tests extends advanced_testcase {
     protected $course;
     protected $attendance;
     protected $teacher;
+    protected $sessions;
 
     public function setUp() {
         global $DB;
@@ -57,21 +58,6 @@ class attendance_webservices_tests extends advanced_testcase {
         $context = context_course::instance($this->course->id);
         $att = $DB->get_record('attendance', array('id' => $cm->instance), '*', MUST_EXIST);
         $this->attendance = new mod_attendance_structure($att, $cm, $this->course, $context);
-    }
-
-    /** Creating 10 students and 1 teacher. */
-    protected function create_and_enrol_users() {
-        for ($i = 0; $i < 10; $i++) {
-            $student = $this->getDataGenerator()->create_user();
-            $this->getDataGenerator()->enrol_user($student->id, $this->course->id, 5); // Enrol as student.
-        }
-
-        $this->teacher = $this->getDataGenerator()->create_user();
-        $this->getDataGenerator()->enrol_user($this->teacher->id, $this->course->id, 3); // Enrol as teacher.
-    }
-
-    public function test_get_courses_with_today_sessions() {
-        $this->resetAfterTest(true);
 
         $this->create_and_enrol_users();
 
@@ -89,10 +75,27 @@ class attendance_webservices_tests extends advanced_testcase {
         $session->groupid = 0;
 
         // Creating two sessions.
-        $sessions[] = $session;
-        $sessions[] = $session;
+        $this->sessions[] = $session;
 
-        $this->attendance->add_sessions($sessions);
+        $this->attendance->add_sessions($this->sessions);
+    }
+
+    /** Creating 10 students and 1 teacher. */
+    protected function create_and_enrol_users() {
+        for ($i = 0; $i < 10; $i++) {
+            $student = $this->getDataGenerator()->create_user();
+            $this->getDataGenerator()->enrol_user($student->id, $this->course->id, 5); // Enrol as student.
+        }
+
+        $this->teacher = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($this->teacher->id, $this->course->id, 3); // Enrol as teacher.
+    }
+
+    public function test_get_courses_with_today_sessions() {
+        $this->resetAfterTest(true);
+
+        // Just adding the same session again to check if the method returns the right amount of instances.
+        $this->attendance->add_sessions($this->sessions);
 
         $courseswithsessions = attendance_handler::get_courses_with_today_sessions($this->teacher->id);
 
@@ -106,25 +109,6 @@ class attendance_webservices_tests extends advanced_testcase {
 
     public function test_get_session() {
         $this->resetAfterTest(true);
-
-        $this->create_and_enrol_users();
-
-        $this->setUser($this->teacher);
-
-        $sessions = array();
-        $session = new stdClass();
-        $session->sessdate = time();
-        $session->duration = 6000;
-        $session->description = "";
-        $session->descriptionformat = 1;
-        $session->descriptionitemid = 0;
-        $session->timemodified = time();
-        $session->statusset = 0;
-        $session->groupid = 0;
-
-        $sessions[] = $session;
-
-        $this->attendance->add_sessions($sessions);
 
         $courseswithsessions = attendance_handler::get_courses_with_today_sessions($this->teacher->id);
 
@@ -141,25 +125,6 @@ class attendance_webservices_tests extends advanced_testcase {
 
     public function test_update_user_status() {
         $this->resetAfterTest(true);
-
-        $this->create_and_enrol_users();
-
-        $this->setUser($this->teacher);
-
-        $sessions = array();
-        $session = new stdClass();
-        $session->sessdate = time();
-        $session->duration = 6000;
-        $session->description = "";
-        $session->descriptionformat = 1;
-        $session->descriptionitemid = 0;
-        $session->timemodified = time();
-        $session->statusset = 0;
-        $session->groupid = 0;
-
-        $sessions[] = $session;
-
-        $this->attendance->add_sessions($sessions);
 
         $courseswithsessions = attendance_handler::get_courses_with_today_sessions($this->teacher->id);
 
