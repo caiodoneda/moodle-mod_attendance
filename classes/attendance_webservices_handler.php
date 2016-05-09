@@ -32,7 +32,7 @@ class attendance_handler {
      * For this user, this method searches in all the courses that this user has permission to take attendance,
      * looking for today sessions and returns the courses with the sessions.
      */
-    public static function get_courses_with_today_sessions($userid, $period = 1) {
+    public static function get_courses_with_today_sessions($userid) {
         global $DB;
 
         $moduleid = $DB->get_field('modules', 'id', array('name' => 'attendance'));

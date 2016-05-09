@@ -38,7 +38,7 @@ class attendance_webservices_tests extends advanced_testcase {
     protected $teacher;
 
     public function setUp() {
-        global $CFG, $DB;
+        global $DB;
 
         $this->category = $this->getDataGenerator()->create_category();
         $this->course = $this->getDataGenerator()->create_course(array('category' => $this->category->id));
@@ -48,9 +48,9 @@ class attendance_webservices_tests extends advanced_testcase {
         $record->name = "Attendance";
         $record->grade = 100;
 
-        $id = $DB->insert_record('attendance', $record);
+        $DB->insert_record('attendance', $record);
 
-        $attendance = $this->getDataGenerator()->create_module('attendance', array('course' => $this->course->id));
+        $this->getDataGenerator()->create_module('attendance', array('course' => $this->course->id));
 
         $moduleid = $DB->get_field('modules', 'id', array('name' => 'attendance'));
         $cm = $DB->get_record('course_modules', array('course' => $this->course->id, 'module' => $moduleid));
