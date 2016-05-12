@@ -36,30 +36,23 @@ class attendance_handler {
         $moduleid = $DB->get_field('modules', 'id', array('name' => 'attendance'));
         $usercourses = enrol_get_users_courses($userid);
         $coursessessions = array();
+
         foreach ($usercourses as $course) {
             $context = context_course::instance($course->id);
             if (has_capability('mod/attendance:takeattendances', $context, $userid)) {
                 if ($cms = $DB->get_records('course_modules', array('course' => $course->id, 'module' => $moduleid))) {
-                    $course->cms = $cms;
-                    $coursessessions[$course->id] = $course;
-                }
-            }
-        }
+                    $course->attendance_instance = array();
+                    foreach ($cms as $cm) {
+                        $att = $DB->get_record('attendance', array('id' => $cm->instance), '*', MUST_EXIST);
+                        $att = new mod_attendance_structure($att, $cm, $course, $context);
+                        $course->attendance_instance[$att->id] = array();
+                        $course->attendance_instance[$att->id]['name'] = $att->name;
+                        $todaysessions = $att->get_today_sessions();
 
-        foreach ($coursessessions as $course) {
-            $course->attendance_instance = array();
-            foreach ($course->cms as $cm) {
-                $att = $DB->get_record('attendance', array('id' => $cm->instance), '*', MUST_EXIST);
-                $context = context_course::instance($course->id);
-                $att = new mod_attendance_structure($att, $cm, $course, $context);
-                $course->attendance_instance[$att->id] = array();
-                $course->attendance_instance[$att->id]['name'] = $att->name;
-                $todaysessions = $att->get_today_sessions();
-
-                if (empty($todaysessions)) {
-                    unset($course->cms[$cm->id]);
-                } else {
-                    $course->attendance_instance[$att->id]['today_sessions'] = $todaysessions;
+                        if (!empty($todaysessions)) {
+                            $course->attendance_instance[$att->id]['today_sessions'] = $todaysessions;
+                        }
+                    }
                 }
             }
         }
