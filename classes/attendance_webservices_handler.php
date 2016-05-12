@@ -51,6 +51,7 @@ class attendance_handler {
 
                         if (!empty($todaysessions)) {
                             $course->attendance_instance[$att->id]['today_sessions'] = $todaysessions;
+                            $coursessessions[$course->id] = $course;
                         }
                     }
                 }
