@@ -47,6 +47,14 @@
             'classpath'   => 'mod/attendance/externallib.php',
             'description' => 'Method that updates the user status in a session.',
             'type'        => 'write',
+        ),
+
+        'mod_wsattendance_associate_rfid_value' => array(
+            'classname'   => 'mod_wsattendance_external',
+            'methodname'  => 'associate_rfid_value',
+            'classpath'   => 'mod/attendance/externallib.php',
+            'description' => 'Method that associates a RFID to the user.',
+            'type'        => 'write',
         )
     );
 
@@ -54,6 +62,7 @@
     // We define the services to install as pre-build services. A pre-build service is not editable by administrator.
     $services = array('Attendance' => array('functions' => array('mod_wsattendance_get_courses_with_today_sessions',
                    'mod_wsattendance_get_session',
-                   'mod_wsattendance_update_user_status'),
+                   'mod_wsattendance_update_user_status',
+                   'mod_wsattendance_associate_rfid_value'),
                    'restrictedusers' => 0,
                    'enabled' => 1));

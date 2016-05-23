@@ -89,7 +89,8 @@ class mod_wsattendance_external extends external_api {
 
         $users = array('id' => new external_value(PARAM_INT, 'User id.'),
                        'firstname' => new external_value(PARAM_TEXT, 'User first name.'),
-                       'lastname' => new external_value(PARAM_TEXT, 'User last name.'));
+                       'lastname' => new external_value(PARAM_TEXT, 'User last name.'),
+                       'rfid' => new external_value(PARAM_TEXT, 'User rfid.'));
 
         $attendancelog = array('studentid' => new external_value(PARAM_INT, 'Student id.'),
                                 'statusid' => new external_value(PARAM_TEXT, 'Status id (last time).'),
@@ -120,5 +121,19 @@ class mod_wsattendance_external extends external_api {
 
     public static function update_user_status_returns() {
         return new external_value(PARAM_TEXT, 'Http code');
+    }
+
+    public static function associate_rfid_value_parameters() {
+        return new external_function_parameters(
+                    array('studentid' => new external_value(PARAM_INT, 'Student id'),
+                          'rfid' => new external_value(PARAM_TEXT, 'User rfid')));
+    }
+
+    public static function associate_rfid_value($studentid, $rfid) {
+        return attendance_handler::associate_rfid_value($studentid, $rfid);
+    }
+
+    public static function associate_rfid_value_returns() {
+        return new external_value(PARAM_TEXT, 'status message');
     }
 }
