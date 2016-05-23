@@ -41,4 +41,9 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configselect('attendance/resultsperpage',
         get_string('resultsperpage', 'attendance'), get_string('resultsperpage_desc', 'attendance'), 25, $options));
+
+    $userinfofields = $DB->get_records_menu('user_info_field', null, null, 'id, name');
+
+    $settings->add(new admin_setting_configselect('attendance/rfidfield',
+        get_string('rfidfield', 'attendance'), get_string('rfidfield_desc', 'attendance'), 0, $userinfofields));
 }

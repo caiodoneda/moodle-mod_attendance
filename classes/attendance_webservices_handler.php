@@ -98,10 +98,17 @@ class attendance_handler {
             $session->attendance_log = $attendancelog;
         }
 
+        $fieldid = get_config('attendance', 'rfidfield');
+
+        foreach ($session->users as $user) {
+            $session->users[$user->id]->rfid = $DB->get_field('user_info_data', 'data', array('fieldid' => $fieldid,
+                                                              'userid' => $user->id));
+        }
+
         return $session;
     }
 
-    public static function update_user_status($sessionid, $studentid, $takenbyid, $statusid, $statusset) {
+    public static function update_user_status($sessionid, $studentid, $takenbyid, $statusid, $statusset, $rfid = '') {
         global $DB;
 
         $record = new stdClass();
@@ -125,6 +132,29 @@ class attendance_handler {
             $attendancesession->timemodified = time();
 
             $DB->update_record('attendance_sessions', $attendancesession);
+        }
+
+        // Saving rfidfield.
+        if (!empty($rfid)) {
+            $fieldid = get_config('attendance', 'rfidfield');
+
+            $record = new stdClass();
+            $record->userid = $studentid;
+            $record->fieldid = $fieldid;
+            $record->data = $rfid;
+            $record->dataformat = 0;
+
+            $sql = "SELECT uid.id
+                      FROM {user_info_data} AS uid
+                     WHERE uid.fieldid = :fieldid AND uid.data LIKE '" . $rfid ."'";
+
+            if (!$DB->record_exists_sql($sql, array('fieldid' => $fieldid))) {
+                $DB->insert_record('user_info_data', $record);
+            } else {
+                return "Esse identificador já foi associado anteriormente com outra pessoal.
+                        Entre em contado com a SeTIC para avaliar a situação.";
+            }
+
         }
     }
 }

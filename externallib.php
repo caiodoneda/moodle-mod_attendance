@@ -89,7 +89,8 @@ class mod_wsattendance_external extends external_api {
 
         $users = array('id' => new external_value(PARAM_INT, 'User id.'),
                        'firstname' => new external_value(PARAM_TEXT, 'User first name.'),
-                       'lastname' => new external_value(PARAM_TEXT, 'User last name.'));
+                       'lastname' => new external_value(PARAM_TEXT, 'User last name.'),
+                       'rfid' => new external_value(PARAM_TEXT, 'User rfid.'));
 
         $attendancelog = array('studentid' => new external_value(PARAM_INT, 'Student id.'),
                                 'statusid' => new external_value(PARAM_TEXT, 'Status id (last time).'),
@@ -111,11 +112,12 @@ class mod_wsattendance_external extends external_api {
                           'studentid' => new external_value(PARAM_INT, 'Student id'),
                           'takenbyid' => new external_value(PARAM_INT, 'Id of the user who took this session'),
                           'statusid' => new external_value(PARAM_INT, 'Status id'),
-                          'statusset' => new external_value(PARAM_TEXT, 'Status set of session')));
+                          'statusset' => new external_value(PARAM_TEXT, 'Status set of session'),
+                          'rfid' => new external_value(PARAM_TEXT, 'User rfid', VALUE_OPTIONAL)));
     }
 
-    public static function update_user_status($sessionid, $studentid, $takenbyid, $statusid, $statusset) {
-        return attendance_handler::update_user_status($sessionid, $studentid, $takenbyid, $statusid, $statusset);
+    public static function update_user_status($sessionid, $studentid, $takenbyid, $statusid, $statusset, $rfid = '') {
+        return attendance_handler::update_user_status($sessionid, $studentid, $takenbyid, $statusid, $statusset, $rfid);
     }
 
     public static function update_user_status_returns() {
