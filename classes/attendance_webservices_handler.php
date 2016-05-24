@@ -145,7 +145,7 @@ class attendance_handler {
             $record->dataformat = 0;
 
             $sql = "SELECT uid.id
-                      FROM {user_info_data} AS uid
+                      FROM {user_info_data} uid
                      WHERE uid.fieldid = :fieldid AND uid.data LIKE '" . $rfid ."'";
 
             if (!$DB->record_exists_sql($sql, array('fieldid' => $fieldid))) {
