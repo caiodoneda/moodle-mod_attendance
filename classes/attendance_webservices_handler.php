@@ -150,11 +150,10 @@ class attendance_handler {
 
             if (!$DB->record_exists_sql($sql, array('fieldid' => $fieldid))) {
                 $DB->insert_record('user_info_data', $record);
-		return 201; // Created                
-            } else {
-		return 304; // Not Modified                
+                return 201; // Created
+             else {
+                return 304; // Not Modified
             }
-
         }
     }
 }
