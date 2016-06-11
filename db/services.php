@@ -63,6 +63,6 @@
     $services = array('Attendance' => array('functions' => array('mod_wsattendance_get_courses_with_today_sessions',
                    'mod_wsattendance_get_session',
                    'mod_wsattendance_update_user_status',
-		   'mod_wsattendance_associate_rfid_value'),
+                   'mod_wsattendance_associate_rfid_value'),
                    'restrictedusers' => 0,
                    'enabled' => 1));
