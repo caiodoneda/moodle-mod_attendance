@@ -137,8 +137,8 @@ class attendance_handler {
 
     public static function associate_rfid_value($studentid, $rfid) {
         global $DB;
-       
-    $fieldid = get_config('attendance', 'rfidfield');
+
+        $fieldid = get_config('attendance', 'rfidfield');
 
         $record = new stdClass();
         $record->userid = $studentid;
@@ -147,19 +147,19 @@ class attendance_handler {
         $record->dataformat = 0;
 
         $sql = "SELECT uid.id
-              FROM {user_info_data} uid
-             WHERE uid.fieldid = :fieldid AND uid.data LIKE '" . $rfid ."'";
+                  FROM {user_info_data} uid
+                 WHERE uid.fieldid = :fieldid AND uid.data LIKE '" . $rfid ."'";
 
         if (!$DB->record_exists_sql($sql, array('fieldid' => $fieldid))) {
-        if ($DB->record_exists('user_info_data', array('userid' => $userid, 'fieldid' => $fieldid))) {
-            return 2; // This user already have a rfid associated.
+            if ($DB->record_exists('user_info_data', array('userid' => $userid, 'fieldid' => $fieldid))) {
+                return 2; // This user already have a rfid associated.
             }
 
-        $DB->insert_record('user_info_data', $record);
+            $DB->insert_record('user_info_data', $record);
 
-        return 1; // Associated.
+            return 1; // Associated.
         } else {
-        return 3; // rfid already used.
+            return 3; // RFID already used.
         }
     }
 }
