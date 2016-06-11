@@ -108,7 +108,7 @@ class attendance_handler {
         return $session;
     }
 
-    public static function update_user_status($sessionid, $studentid, $takenbyid, $statusid, $statusset, $rfid = '') {
+    public static function update_user_status($sessionid, $studentid, $takenbyid, $statusid, $statusset) {
         global $DB;
 
         $record = new stdClass();
@@ -133,28 +133,33 @@ class attendance_handler {
 
             $DB->update_record('attendance_sessions', $attendancesession);
         }
+    }
 
-        // Saving rfidfield.
-        if (!empty($rfid)) {
-            $fieldid = get_config('attendance', 'rfidfield');
+    public static function associate_rfid_value($studentid, $rfid) {
+        global $DB;
+       
+   	$fieldid = get_config('attendance', 'rfidfield');
 
-            $record = new stdClass();
-            $record->userid = $studentid;
-            $record->fieldid = $fieldid;
-            $record->data = $rfid;
-            $record->dataformat = 0;
+        $record = new stdClass();
+        $record->userid = $studentid;
+        $record->fieldid = $fieldid;
+        $record->data = $rfid;
+        $record->dataformat = 0;
 
-            $sql = "SELECT uid.id
-                      FROM {user_info_data} uid
-                     WHERE uid.fieldid = :fieldid AND uid.data LIKE '" . $rfid ."'";
+        $sql = "SELECT uid.id
+	          FROM {user_info_data} uid
+	         WHERE uid.fieldid = :fieldid AND uid.data LIKE '" . $rfid ."'";
 
-            if (!$DB->record_exists_sql($sql, array('fieldid' => $fieldid))) {
-                $DB->insert_record('user_info_data', $record);
-		return 201; // Created                
-            } else {
-		return 304; // Not Modified                
+        if (!$DB->record_exists_sql($sql, array('fieldid' => $fieldid))) {
+	    if ($DB->record_exists('user_info_data', array('userid' => $userid, 'fieldid' => $fieldid))) {
+	        return 2; // This user already have a rfid associated.
             }
 
+	    $DB->insert_record('user_info_data', $record);
+
+	    return 1; // Associated.                
+        } else {
+	    return 3; // rfid already used.                
         }
-    }
+    }	
 }
