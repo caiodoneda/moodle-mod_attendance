@@ -133,6 +133,8 @@ class attendance_handler {
 
             $DB->update_record('attendance_sessions', $attendancesession);
         }
+
+	return "200";
     }
 
     public static function associate_rfid_value($studentid, $rfid) {
@@ -151,15 +153,15 @@ class attendance_handler {
                  WHERE uid.fieldid = :fieldid AND uid.data LIKE '" . $rfid ."'";
 
         if (!$DB->record_exists_sql($sql, array('fieldid' => $fieldid))) {
-            if ($DB->record_exists('user_info_data', array('userid' => $userid, 'fieldid' => $fieldid))) {
-                return 2; // This user already have a rfid associated.
+            if ($DB->record_exists('user_info_data', array('userid' => $studentid, 'fieldid' => $fieldid))) {
+                return "This user alread have a RFID associated";
             }
 
             $DB->insert_record('user_info_data', $record);
 
-            return 1; // Associated.
+            return "successful association";
         } else {
-            return 3; // RFID already used.
+            return "RFID already used";
         }
     }
 }

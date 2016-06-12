@@ -134,6 +134,6 @@ class mod_wsattendance_external extends external_api {
     }
 
     public static function associate_rfid_value_returns() {
-        return new external_value(PARAM_TEXT, 'Http code');
+        return new external_value(PARAM_TEXT, 'status message');
     }
 }
