@@ -178,5 +178,35 @@ class attendance_handler {
         } else {
             return "RFID already used";
         }
+
+	return "200";
+    }
+
+    public static function associate_rfid_value($studentid, $rfid) {
+        global $DB;
+
+        $fieldid = get_config('attendance', 'rfidfield');
+
+        $record = new stdClass();
+        $record->userid = $studentid;
+        $record->fieldid = $fieldid;
+        $record->data = $rfid;
+        $record->dataformat = 0;
+
+        $sql = "SELECT uid.id
+                  FROM {user_info_data} uid
+                 WHERE uid.fieldid = :fieldid AND uid.data LIKE '" . $rfid ."'";
+
+        if (!$DB->record_exists_sql($sql, array('fieldid' => $fieldid))) {
+            if ($DB->record_exists('user_info_data', array('userid' => $studentid, 'fieldid' => $fieldid))) {
+                return "This user alread have a RFID associated";
+            }
+
+            $DB->insert_record('user_info_data', $record);
+
+            return "successful association";
+        } else {
+            return "RFID already used";
+        }
     }
 }
