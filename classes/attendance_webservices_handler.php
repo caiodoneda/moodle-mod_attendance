@@ -32,6 +32,12 @@ class attendance_handler {
      * looking for today sessions and returns the courses with the sessions.
      */
     public static function get_courses_with_today_sessions($userid) {
+        global $USER;
+
+        if ($userid != $USER->id) {
+            throw new moodle_exception('nopermissions');
+        }
+
         $usercourses = enrol_get_users_courses($userid);
         $attendanceinstance = get_all_instances_in_courses('attendance', $usercourses);
 
@@ -84,12 +90,17 @@ class attendance_handler {
      ** For this session, returns all the necessary data to take an attendance
      */
     public static function get_session($sessionid) {
-        global $DB;
+        global $DB, $USER;
 
         $session = $DB->get_record('attendance_sessions', array('id' => $sessionid));
         $session->courseid = $DB->get_field('attendance', 'course', array('id' => $session->attendanceid));
         $session->statuses = attendance_get_statuses($session->attendanceid, true, $session->statusset);
         $coursecontext = context_course::instance($session->courseid);
+        
+        if (!has_capability('mod/attendance:takeattendances', $coursecontext, $USER->id)) {
+            throw new moodle_exception('nopermissions');
+        }
+
         $session->users = get_enrolled_users($coursecontext, 'mod/attendance:canbelisted', 0, 'u.id, u.firstname, u.lastname');
         $session->attendance_log = array();
 
@@ -109,7 +120,11 @@ class attendance_handler {
     }
 
     public static function update_user_status($sessionid, $studentid, $takenbyid, $statusid, $statusset) {
-        global $DB;
+        global $DB, $USER;
+        
+        if ($takenbyid != $USER->id) {
+            throw new moodle_exception('nopermissions');
+        }
 
         $record = new stdClass();
         $record->statusset = $statusset;
@@ -119,19 +134,19 @@ class attendance_handler {
         $record->statusid = $statusid;
         $record->studentid = $studentid;
 
-        if ($attendancelog = $DB->get_record('attendance_log', array('sessionid' => $sessionid, 'studentid' => $studentid))) {
-            $record->id = $attendancelog->id;
-            $DB->update_record('attendance_log', $record);
-        } else {
-            $DB->insert_record('attendance_log', $record);
-        }
-
         if ($attendancesession = $DB->get_record('attendance_sessions', array('id' => $sessionid))) {
             $attendancesession->lasttaken = time();
             $attendancesession->lasttakenby = $takenbyid;
             $attendancesession->timemodified = time();
 
             $DB->update_record('attendance_sessions', $attendancesession);
+        }
+
+        if ($attendancelog = $DB->get_record('attendance_log', array('sessionid' => $sessionid, 'studentid' => $studentid))) {
+            $record->id = $attendancelog->id;
+            $DB->update_record('attendance_log', $record);
+        } else {
+            $DB->insert_record('attendance_log', $record);
         }
 
         return "200";
